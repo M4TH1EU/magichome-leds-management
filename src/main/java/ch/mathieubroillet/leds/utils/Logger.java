@@ -7,6 +7,8 @@ public class Logger {
     public static final String ANSI_GREEN = "\u001B[32m";
     public static final String ANSI_YELLOW = "\u001B[33m";
     public static final String RED_BOLD = "\033[1;31m";
+    public static final String GREEN_BOLD = "\033[1;32m";
+
 
     public static void error(String message) {
         print(ANSI_RED + "[ERROR] " + message + ANSI_RESET);
@@ -14,6 +16,10 @@ public class Logger {
 
     public static void info(String message) {
         print(ANSI_GREEN + "[INFO] " + message + ANSI_RESET);
+    }
+
+    public static void debug(String message) {
+        print(GREEN_BOLD + "[DEBUG] " + message + ANSI_RESET);
     }
 
     public static void warn(String message) {
