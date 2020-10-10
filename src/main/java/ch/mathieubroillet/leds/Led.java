@@ -1,6 +1,9 @@
 package ch.mathieubroillet.leds;
 
 import ch.mathieubroillet.leds.enums.EnumLedsStatus;
+import ch.mathieubroillet.leds.utils.Logger;
+
+import java.awt.*;
 
 public class Led {
     String ip;
@@ -21,7 +24,7 @@ public class Led {
         return targetMachineIP;
     }
 
-    public boolean isTargetMachineIsOn() {
+    public boolean isTargetMachineOn() {
         return Utils.isDeviceConnectedToNetwork(getTargetMachineIP());
     }
 
@@ -29,7 +32,7 @@ public class Led {
         return name;
     }
 
-    public EnumLedsStatus getLedsStatus() {
+    public EnumLedsStatus getStatus() {
         return LedsUtils.getStatus(getIp());
     }
 
@@ -43,6 +46,18 @@ public class Led {
 
     public void turnOff() {
         LedsUtils.setStatus(getIp(), EnumLedsStatus.OFF);
+    }
+
+    public Color getColor() {
+        return LedsUtils.getColor(getIp());
+    }
+
+    public void setColor(Color color) {
+        LedsUtils.setColor(getIp(), color);
+    }
+
+    public void setColor(int r, int g, int b) {
+        LedsUtils.setColor(getIp(), new Color(r, g, b));
     }
 
     public boolean isConnectedToNetwork() {
