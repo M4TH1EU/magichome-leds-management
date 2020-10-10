@@ -1,12 +1,24 @@
 package ch.mathieubroillet.leds;
 
+import ch.mathieubroillet.leds.utils.Logger;
 import ch.mathieubroillet.leds.utils.OSValidator;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
+import java.util.Scanner;
 
 public class Utils {
+    private static String execPythonCommandOnLinux(String cmd) {
+        String result = null;
+        try (InputStream inputStream = Runtime.getRuntime().exec(cmd).getInputStream();
+             Scanner s = new Scanner(inputStream).useDelimiter("\\A")) {
+            result = (s.hasNext() ? s.next() : null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
 
     public static String execCommandWithOutput(String command) {
         try {
@@ -16,7 +28,10 @@ public class Utils {
                 args = new String[]{"cmd", "/C", command};
                 proc = new ProcessBuilder(args).start();
             } else if (OSValidator.isUnix()) {
-                args = new String[]{"/bin/bash", "-c", command};
+                if (command.startsWith("python")) {
+                    return execPythonCommandOnLinux(command);
+                }
+                args = new String[]{"/bin/bash", "-c", "\"" + command + "\""};
                 proc = new ProcessBuilder(args).start();
             }
 
@@ -24,7 +39,7 @@ public class Utils {
 
             // Read script execution results
             int i = 0;
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             while ((i = is.read()) != -1)
                 sb.append((char) i);
 
@@ -48,28 +63,16 @@ public class Utils {
         return 0;
     }
 
-
-    public static byte[] convertIpToBytes(String ipAdress) {
-        String[] ipNumbers = ipAdress.split("\\.");
-        byte[] ip = {
-                (byte) getIntegerFromString(ipNumbers[0]),
-                (byte) getIntegerFromString(ipNumbers[1]),
-                (byte) getIntegerFromString(ipNumbers[2]),
-                (byte) getIntegerFromString(ipNumbers[3])
-        };
-
-        return ip;
-    }
-
     /**
-     * @param ipAdress
+     * @param ipAddress
      * @return
      */
-    public static boolean isDeviceConnectedToNetwork(String ipAdress) {
+    public static boolean isDeviceConnectedToNetwork(String ipAddress) {
         try {
-            InetAddress address = InetAddress.getByAddress(convertIpToBytes(ipAdress));
-            return address.isReachable(1000);
+            InetAddress address = InetAddress.getByName(ipAddress);
+            return address.isReachable(2000);
         } catch (IOException e) {
+            Logger.error("Error when checking if device is connected to network : " + e.getMessage());
             e.printStackTrace();
         }
 
